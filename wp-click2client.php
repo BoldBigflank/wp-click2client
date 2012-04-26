@@ -135,7 +135,6 @@ function wp_c2client($applicationSid, $Caption = "Call") {
         </div>
 		<script type="text/javascript">
 			var connection = ""
-		    // Set up with TOKEN, a string generated server-side
 		    Twilio.Device.error(function (e) {
 		        console.log(e.message + " for " + e.connection);
 		    });
@@ -143,11 +142,10 @@ function wp_c2client($applicationSid, $Caption = "Call") {
                 var self = this
 				Twilio.Device.disconnectAll();
 		    	if(this.innerHTML != 'Hangup'){
-                    console.log('waiting')
+        		    // Set up with TOKEN, a string generated server-side
             		Twilio.Device.setup("$token");
 					if (Twilio.Device.status() != "ready") return
         		    self.innerHTML = 'Hangup'
-                    console.log("Twilio.Device is now " + Twilio.Device.status());
 				    connection = Twilio.Device.connect({
 				        From: "$callerId"
 				    });
@@ -157,7 +155,6 @@ function wp_c2client($applicationSid, $Caption = "Call") {
 				}
 		    });
 			jQuery("#$c2c-input").keyup(function(event){
-				console.log(event)
 				digit = this.value
 				valid = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '#']
 				if (valid.indexOf(digit) != -1){
