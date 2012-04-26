@@ -3,7 +3,7 @@
  Plugin Name: Wordpress Click2Client
  Plugin URI: https://github.com/smashcubed/wp-click2client
  Description: Allows theme developers to add click2client support to any post/page
- Version: 0.9.0
+ Version: 1.1.0
  Author: Alex Swan (original by Adam Ballai)
  Author URI: http://www.bold-it.com
 */
@@ -19,7 +19,7 @@ if (!function_exists('add_action')) {
     
 if(!class_exists('Click2client')) {
 
-define('WP_CLICK2CLIENT_VERSION', '1.0.4');
+define('WP_CLICK2CLIENT_VERSION', '1.1.0');
 require_once 'Services/Twilio.php';
 
 class Click2client {
@@ -120,7 +120,7 @@ class Click2client {
 }
 
 /* Wordpres Tag for click2client */
-function wp_c2client($applicationSid, $Caption = "Call") {
+function wp_c2client($applicationSid, $Caption = "Call", $Digits = False) {
 	// Click to client
 	// Get a token using the AppId
 	$capability = new Services_Twilio_Capability(get_option('wpc2client_twilio_sid'), get_option('wpc2client_twilio_token'));
@@ -128,11 +128,11 @@ function wp_c2client($applicationSid, $Caption = "Call") {
 	$token = $capability->generateToken();
 	$callerId = get_option('wpc2client_caller_id');
     $c2c_id = "C2C".uniqid();
+    echo "<div id='$c2c_id'>";
+    echo "<button id='click2client-button'>$Caption</button>";
+    if($Digits)	echo "<input id='$c2c-input' type='text' placeholder='digits' style='width:40px'/>";
+    echo '</div>';
 	echo <<<END
-        <div id="$c2c_id">
-    		<button id="click2client-button">$Caption</button>
-    		<input id='$c2c-input' type='text' placeholder="digits" style="width:40px"/>
-        </div>
 		<script type="text/javascript">
 			var connection = ""
 		    Twilio.Device.error(function (e) {
@@ -165,8 +165,6 @@ function wp_c2client($applicationSid, $Caption = "Call") {
 			})
 		</script>		
 END;
-	
-	// Click to call
 }
 
 function wp_c2client_main() {

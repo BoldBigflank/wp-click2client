@@ -1,8 +1,9 @@
 === Plugin Name ===
-Contributors: Alex Swan, minddog
+Contributors: boldbigflank
 Tags: twilio, click2client, phone, voice
 Requires at least: 2.8.0
 Tested up to: 3.3.2
+Stable tag: 1.1.0
 
 Wordpress Click2Client adds in-browser call functionality to any wordpress site.  Just configure the control and drop the tag in your theme.
 
@@ -19,10 +20,12 @@ Enter your Twilio Account information
 5. Adding Click2Client button:
 First, create a Twilio App at https://www.twilio.com/user/account/apps and copy its Application Sid (34 characters, starts with "AP")
 Drop this code snippet below anywhere you want a click to client button, then replace ApplicationSid with the Application Sid that you want the button to call
-	<?php wp_c2client("ApplicationSid"); ?>
 
-You may optionally change the title of the button by entering a second variable.  For example:
-	<?php wp_c2client("ApplicationSid", "Call Now!!!1"); ?>
+	&lt;?php wp_c2client("ApplicationSid"); ?&gt;
+
+You may add a couple other parameters: choose the button text(string, default is "Call"), and show a box that allows users to input digits (boolean, default is FALSE).  For example:
+
+	&lt;?php wp_c2client("ApplicationSid", "Button Text", TRUE); ?&gt;
 
 Thats it!
 
@@ -32,6 +35,9 @@ Thats it!
 2. Customize the click2client options.
 
 == Frequently Asked Questions ==
+
+= I don't see the button =
+Make sure you have set up php execution in your wordpress (You may need to get the PHP Execution plugin)
 
 = Where can I go for help or support? =
 Twilio will gladly help you with any questions or comments you may have with twilio services.
