@@ -57,8 +57,7 @@ class Click2client {
     function dial($number) {
 		
         $twilio = new Services_Twilio(get_option('wpc2client_twilio_sid'),
-                                       get_option('wpc2client_twilio_token'),
-                                       'https://api.twilio.com/2008-08-01');
+                                       get_option('wpc2client_twilio_token'));
         $phone = get_option('wpc2client_primary_phone');
         $ext = get_option('wpc2client_primary_extension');
         $connecting_url = plugins_url('wp-click2client/wp-click2client.php?ext='.urlencode($ext).'&connect_to='.urlencode($phone));
@@ -95,16 +94,6 @@ class Click2client {
                       __FILE__,
                       array('Click2client',
                             'options'));
-    }
-
-    function head_scripts() {
-        wp_enqueue_script('wp-click2client', plugins_url('wp-click2client/click2client.js'), array('jquery', 'swfobject'), WP_CLICK2CLIENT_VERSION, true);
-        wp_localize_script('wp-click2client', 'click2clientL10n', array(
-                                                                    'plugin_url' => plugins_url('wp-click2client'),
-                                                                    'exampletext' => htmlspecialchars(get_option('wpc2client_example_text')),
-                                                                    'showlogo' => get_option('wpc2client_show_logo') == 'yes'? 1 : 0,
-                                                                    ));
-        wp_print_scripts('wp-click2client');
     }
 
     function options() {
@@ -189,10 +178,52 @@ class Click2client {
 }
 
 /* Wordpres Tag for click2client */
-function wp_c2client() {
+function wp_c2client($applicationSid, $Caption = "Call") {
+	// Click to client
+	// Get a token using the AppId
+	$capability = new Services_Twilio_Capability(get_option('wpc2client_twilio_sid'), get_option('wpc2client_twilio_token'));
+	$capability->allowClientOutgoing($applicationSid);
+	$token = $capability->generateToken();
+	$callerId = get_option('wpc2client_caller_id');
+	echo <<<END
+		<button id="click2client-button">$Caption</button>
+		<input id='click2client-input' type='text' placeholder="digits" style="width:40px"/>
+		<script type="text/javascript">
+			var click2client-connection = ""
+		    // Set up with TOKEN, a string generated server-side
+		    Twilio.Device.setup("$token");
+		    Twilio.Device.error(function (e) {
+		        console.log(e.message + " for " + e.connection);
+		    });
+		    jQuery("#click2client-button").click(function() {
+				var self = this
+				if(this.innerHTML == 'Hangup'){
+					Twilio.Device.disconnectAll();
+					click2client-connection = ''
+					this.innerHTML = '$Caption'
+				} else{
+					this.innerHTML = 'Hangup'
+				    click2client-connection = Twilio.Device.connect({
+				        agent: "Smith",
+				        phone_number: "$callerId"
+				    });
+				}
+		    });
+			jQuery("#click2client-input").keyup(function(event){
+				console.log(event)
+				digit = this.value
+				valid = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '#']
+				if (valid.indexOf(digit) != -1){
+					if(click2client-connection != '') click2client-connection.sendDigits(digit)
+				}
+				this.value = ""
+			})
+		</script>		
+END;
 	
+	// Click to call
     $c2c_id = "C2C".uniqid();
-    echo '<div id="'.$c2c_id.'" class="click2client"></div>';
+	echo '<div id="'.$c2c_id.'" class="click2client"></div>';
 }
 
 function wp_c2client_main() {
