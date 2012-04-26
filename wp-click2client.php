@@ -26,21 +26,11 @@ class Click2client {
     static $options = array('wpc2client_twilio_sid' => 'Twilio Account Sid',
                             'wpc2client_twilio_token' => 'Twilio Token',
                             'wpc2client_caller_id' => 'Caller ID',
-                            'wpc2client_primary_phone' => 'Primary Phone To Call',
-                            'wpc2client_primary_extension' => 'Primary Phone Extension (optional)',
-                            'wpc2client_example_text' => 'Placeholder text',
-                            'wpc2client_show_logo' => 'Show Twilio Logo',
-                            'wpc2client_custom_greeting' => 'Custom greeting for caller',
-                            );
+						);
     static $helptext = array('wpc2client_twilio_sid' => 'You can retrieve this if you login to your account or signup at <a href="http://twilio.com">Twilio</a>',
                              'wpc2client_twilio_token' => 'This can be found on your Twilio account dashboard, <a href="http://twilio.com">Twilio</a>',
                              'wpc2client_caller_id' => 'Must be a valid outgoing caller id approved by your Twilio account.',
-                             'wpc2client_primary_phone' => 'What number do you want people to call you on?',
-                             'wpc2client_primary_extension' => 'If you are behind an existing phone system, add your extension.',
-                             'wpc2client_example_text' => 'This is the placholder text shown in your widget before someone starts typing their number.',
-                             'wpc2client_show_logo' => 'Do you want to hide the Twilio logo?',
-                             'wp2c2_custom_greeting' => 'Type in what you want the caller to be greeted with before connecting.',
-                             );
+						 );
     function init() {
         global $wpdb;
 
@@ -49,41 +39,6 @@ class Click2client {
 
         add_action('admin_menu', array('Click2client',
                                        'admin_menu'));
-
-        add_action('wp_head', array('Click2client',
-                                    'head_scripts'));
-    }
-
-    function dial($number) {
-		
-        $twilio = new Services_Twilio(get_option('wpc2client_twilio_sid'),
-                                       get_option('wpc2client_twilio_token'));
-        $phone = get_option('wpc2client_primary_phone');
-        $ext = get_option('wpc2client_primary_extension');
-        $connecting_url = plugins_url('wp-click2client/wp-click2client.php?ext='.urlencode($ext).'&connect_to='.urlencode($phone));
-        
-		$response = $twilio->account->calls->create($number, get_option('wpc2client_caller_id'), $connecting_url);
-
-        $data = array('error' => false, 'message' => '');
-        if($response->IsError) {
-            $data['error'] = true;
-            $data['message'] = $response->ErrorMessage;
-        }
-
-        echo json_encode($data);
-    }
-
-    function connect($number, $ext)
-    {
-        header('X-WP-Click2Client: '.WP_CLICK2CLIENT_VERSION);
-        $twilio = new Services_Twilio_Twiml();
-        $greeting = get_option('wpc2client_custom_greeting');
-        if(!empty($greeting)) {
-            $twilio->say($greeting);
-        }
-        $dial = $twilio->dial(NULL, array());
-		$dial->number($number, array('sendDigits'=>$ext));
-        echo $twilio; 
     }
 
     function admin_menu() {
@@ -108,8 +63,11 @@ class Click2client {
 
         echo '<p>Step 1. To get started with setting up your click2client button, you first must get your Twilio Account Sid and Token.  Login or signup at <a href="http://twilio.com">twilio.com</a></p>';
         echo '<p>Step 2. Customize the settings below.</p>';
-		echo '<p>Step 3. Drop this code snippet in your theme to create a click2client button</p>';
-		echo '<p class="code">'.htmlspecialchars('<?php wp_c2client("AppID"); ?>')."</p>";
+		echo '<p>Step 3. Create a <a href="https://www.twilio.com/user/account/apps">Twilio App</a> and note its Application Sid (34 characters, starts with "AP")</p>';
+		echo '<p>Step 4. Drop this code snippet below anywhere you want a click to client button, then replace ApplicationSid with the Application Sid from Step 3</p>';
+		echo '<p class="code">'.htmlspecialchars('<?php wp_c2client("ApplicationSid"); ?>')."</p>";
+		echo '<p>You may optionally change the title of the button by entering a second variable.  For example:</p>';
+		echo '<p class="code">'.htmlspecialchars('<?php wp_c2client("ApplicationSid", "Call Now!!!1"); ?>')."</p>";
         echo '<form name="c2c-options" action="" method="post">';
         foreach(self::$options as $option => $title) {
             $value = get_option($option, '');
@@ -148,24 +106,8 @@ class Click2client {
                    'Twilio Account Token',
                    'yes');
         
-        add_option('wpc2client_primary_phone', '',
-                   'Primary phone number to call',
-                   'yes');
-
-        add_option('wpc2client_primary_extension', '',
-                   'Primary phone extension to dial',
-                   'yes');
-
         add_option('wpc2client_caller_id', '',
                    'What to show up on your friends phone',
-                   'yes');
-
-        add_option('wpc2client_example_text', '(415) 867 5309',
-                   'Example text',
-                   'yes');
-
-        add_option('wpc2client_show_logo', 'yes',
-                   'Show Twilio logo',
                    'yes');
     }
 
@@ -185,36 +127,41 @@ function wp_c2client($applicationSid, $Caption = "Call") {
 	$capability->allowClientOutgoing($applicationSid);
 	$token = $capability->generateToken();
 	$callerId = get_option('wpc2client_caller_id');
+    $c2c_id = "C2C".uniqid();
 	echo <<<END
-		<button id="click2client-button">$Caption</button>
-		<input id='click2client-input' type='text' placeholder="digits" style="width:40px"/>
+        <div id="$c2c_id">
+    		<button id="click2client-button">$Caption</button>
+    		<input id='$c2c-input' type='text' placeholder="digits" style="width:40px"/>
+        </div>
 		<script type="text/javascript">
-			var click2client-connection = ""
+			var connection = ""
 		    // Set up with TOKEN, a string generated server-side
-		    Twilio.Device.setup("$token");
 		    Twilio.Device.error(function (e) {
 		        console.log(e.message + " for " + e.connection);
 		    });
-		    jQuery("#click2client-button").click(function() {
-				var self = this
-				if(this.innerHTML == 'Hangup'){
-					Twilio.Device.disconnectAll();
-					click2client-connection = ''
-					this.innerHTML = '$Caption'
-				} else{
-					this.innerHTML = 'Hangup'
-				    click2client-connection = Twilio.Device.connect({
-				        agent: "Smith",
-				        phone_number: "$callerId"
+		    jQuery("#$c2c_id #click2client-button").click(function() {
+                var self = this
+				Twilio.Device.disconnectAll();
+		    	if(this.innerHTML != 'Hangup'){
+                    console.log('waiting')
+            		Twilio.Device.setup("$token");
+					if (Twilio.Device.status() != "ready") return
+        		    self.innerHTML = 'Hangup'
+                    console.log("Twilio.Device is now " + Twilio.Device.status());
+				    connection = Twilio.Device.connect({
+				        From: "$callerId"
 				    });
+                    connection.disconnect(function(connection){
+                        self.innerHTML = '$Caption';
+                    })
 				}
 		    });
-			jQuery("#click2client-input").keyup(function(event){
+			jQuery("#$c2c-input").keyup(function(event){
 				console.log(event)
 				digit = this.value
 				valid = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '#']
 				if (valid.indexOf(digit) != -1){
-					if(click2client-connection != '') click2client-connection.sendDigits(digit)
+					if(connection != '') connection.sendDigits(digit)
 				}
 				this.value = ""
 			})
@@ -222,24 +169,9 @@ function wp_c2client($applicationSid, $Caption = "Call") {
 END;
 	
 	// Click to call
-    $c2c_id = "C2C".uniqid();
-	echo '<div id="'.$c2c_id.'" class="click2client"></div>';
 }
 
 function wp_c2client_main() {
-    
-    if(!empty($_REQUEST['caller']))
-    {
-        Click2client::dial($_REQUEST['caller']);
-        exit;
-    }
-    
-    if(!empty($_REQUEST['connect_to']))
-    {
-        Click2client::connect($_REQUEST['connect_to'], $_REQUEST['ext']);
-        exit;
-    }
-    
     return Click2client::init();
 }
 
