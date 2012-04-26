@@ -1,10 +1,8 @@
 === Plugin Name ===
-Contributors: minddog
-Donate link: http://twilio.com
+Contributors: Alex Swan, minddog
 Tags: twilio, click2client, phone, voice
 Requires at least: 2.8.0
 Tested up to: 3.3.2
-Stable tag: 1.0.5
 
 Wordpress Click2Client adds in-browser call functionality to any wordpress site.  Just configure the control and drop the tag in your theme.
 

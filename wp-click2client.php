@@ -1,7 +1,7 @@
 <?php
 /*
  Plugin Name: Wordpress Click2Client
- Plugin URI: http://twilio.com
+ Plugin URI: https://github.com/smashcubed/wp-click2client
  Description: Allows theme developers to add click2client support to any post/page
  Version: 0.9.0
  Author: Alex Swan (original by Adam Ballai)
