@@ -155,12 +155,13 @@ function wp_c2client($applicationSid, $Caption = "Call") {
 				}
 		    });
 			jQuery("#$c2c-input").keyup(function(event){
-				digit = this.value
+                var self = this
+				digit = self.value
 				valid = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '#']
 				if (valid.indexOf(digit) != -1){
 					if(connection != '') connection.sendDigits(digit)
 				}
-				this.value = ""
+				self.value = ""
 			})
 		</script>		
 END;
