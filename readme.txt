@@ -15,7 +15,7 @@ Wordpress Click2Client adds in-browser call functionality to any wordpress site.
 1. Download the zip or clone it from git.
 2. Copy the wp-click2client into the `/wp-content/plugins/` directory
 3. Activate the wp-click2client plugin.
-4. A newly created menu option is created for Click2Client on the admin menu.  
+4. A new menu option is created for Click2Client in the Settings menu.  
 Enter your Twilio Account information
 5. Adding Click2Client button:
 First, create a Twilio App at https://www.twilio.com/user/account/apps and copy its Application Sid (34 characters, starts with "AP")
