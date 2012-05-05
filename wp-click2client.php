@@ -3,8 +3,8 @@
  Plugin Name: Wordpress Click2Client
  Plugin URI: https://github.com/smashcubed/wp-click2client
  Description: Allows theme developers to add click2client support to any post/page
- Version: 1.1.0
- Author: Alex Swan (original by Adam Ballai)
+ Version: 1.1.1
+ Author: Alex Swan
  Author URI: http://www.bold-it.com
 */
 
@@ -19,7 +19,7 @@ if (!function_exists('add_action')) {
     
 if(!class_exists('Click2client')) {
 
-define('WP_CLICK2CLIENT_VERSION', '1.1.0');
+define('WP_CLICK2CLIENT_VERSION', '1.1.1');
 require_once 'Services/Twilio.php';
 
 class Click2client {
@@ -43,10 +43,10 @@ class Click2client {
 
     function admin_menu() {
         
-        add_menu_page('Click2client Options',
-                      'Click2client',
+        add_options_page('Click2client Options',
+                      'Click2Client',
                       8,
-                      __FILE__,
+                      'Click2client-handle',
                       array('Click2client',
                             'options'));
     }
