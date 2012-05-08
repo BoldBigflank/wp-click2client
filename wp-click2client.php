@@ -39,6 +39,7 @@ class Click2client {
 
         add_action('admin_menu', array('Click2client',
                                        'admin_menu'));
+									   
     }
 
     function admin_menu() {
@@ -46,7 +47,7 @@ class Click2client {
         add_options_page('Click2client Options',
                       'Click2Client',
                       8,
-                      'Click2client-handle',
+                      __FILE__,
                       array('Click2client',
                             'options'));
     }
@@ -63,29 +64,20 @@ class Click2client {
 
         echo '<p>Step 1. To get started with setting up your click2client button, you first must get your Twilio Account Sid and Token.  Login or signup at <a href="http://twilio.com">twilio.com</a></p>';
         echo '<p>Step 2. Customize the settings below.</p>';
-		echo '<p>Step 3. Create a <a href="https://www.twilio.com/user/account/apps">Twilio App</a> and note its Application Sid (34 characters, starts with "AP")</p>';
-		echo '<p>Step 4. Drop this code snippet below anywhere you want a click to client button, then replace ApplicationSid with the Application Sid from Step 3</p>';
-		echo '<p class="code">'.htmlspecialchars('<?php wp_c2client("ApplicationSid"); ?>')."</p>";
-		echo '<p>You may optionally change the title of the button by entering a second variable.  For example:</p>';
-		echo '<p class="code">'.htmlspecialchars('<?php wp_c2client("ApplicationSid", "Call Now!!!1"); ?>')."</p>";
+		echo '<p>Step 3. Create a <a href="https://www.twilio.com/user/account/apps">Twilio App</a> and note its Application Sid (34 characters, starts with "AP") (<a href="http://www.bold-it.com/wordpress/2012/05/07/click2client-call-me-button/">Simple tutorial</a>)</p>';
+		echo '<p>Step 4. Drop this shortcode anywhere you want a click to client button, then replace ApplicationSid with the Application Sid from the previous step</p>';
+		echo '<p class="code">'.htmlspecialchars('[wp_click2client id="ApplicationSid"]')."</p>";
+		echo '<p>The \'id\' parameter is required.  You may also set \'caption\' to what you want to be on the button, and \'digits=TRUE\' if you want a text area for users to input numbers.  For example:</p>';
+		echo '<p class="code">'.htmlspecialchars('[wp_click2client id="ApplicationSid" caption="Call Now!!!1" digits=TRUE]')."</p>";
         echo '<form name="c2c-options" action="" method="post">';
         foreach(self::$options as $option => $title) {
             $value = get_option($option, '');
-            $type = preg_match('/wpc2client_show_(.*)/', $option)? 'checkbox' : 'text';
-            $checked = '';
-            if($type == 'checkbox') {
-                if($value == 'yes') {
-                    $checked = 'checked="checked"';
-                }
-                
-                $value = "yes";
-            }
             echo '<div id="'.htmlspecialchars($option).'_div" class="stuffbox">';
             echo '<h3 style="margin:0; padding: 10px">';
             echo '<label for="'.htmlspecialchars($option).'">'.htmlspecialchars($title).'</label>';
             echo '</h3>';
             echo '<div class="inside" style="margin: 10px">';
-            echo '<input id="'.htmlspecialchars($option).'" type="'.$type.'" name="'.htmlspecialchars($option).'" value="'.htmlspecialchars($value).'" '.$checked.' size="50"/>';
+            echo '<input id="'.htmlspecialchars($option).'" type="text" name="'.htmlspecialchars($option).'" value="'.htmlspecialchars($value).'" size="50"/>';
             echo '<p style="margin: 10px">'.self::$helptext[$option].'</p>';
             echo '</div>';
             echo '</div>';
@@ -120,7 +112,11 @@ class Click2client {
 }
 
 /* Wordpres Tag for click2client */
-function wp_c2client($applicationSid, $Caption = "Call", $Digits = False) {
+function wp_c2client($applicationSid, $Caption = "Call", $Digits = False) { // Deprecated method
+	echo wp_c2client_render($applicationSid, $Caption, $Digits);
+}
+
+function wp_c2client_render($applicationSid, $Caption = "Call", $Digits = False) {
 	// Click to client
 	// Get a token using the AppId
 	$capability = new Services_Twilio_Capability(get_option('wpc2client_twilio_sid'), get_option('wpc2client_twilio_token'));
@@ -128,11 +124,11 @@ function wp_c2client($applicationSid, $Caption = "Call", $Digits = False) {
 	$token = $capability->generateToken();
 	$callerId = get_option('wpc2client_caller_id');
     $c2c_id = "C2C".uniqid();
-    echo "<div id='$c2c_id'>";
-    echo "<button id='click2client-button'>$Caption</button>";
-    if($Digits)	echo "<input id='$c2c-input' type='text' placeholder='digits' style='width:40px'/>";
-    echo '</div>';
-	echo <<<END
+    $result = "<div id='$c2c_id'>";
+    $result .= "<button id='click2client-button'>$Caption</button>";
+    if($Digits)	$result .= "<input id='$c2c-input' type='text' placeholder='digits' style='width:40px'/>";
+    $result .= '</div>';
+	$result .= <<<END
 		<script type="text/javascript">
 			var connection = ""
 		    Twilio.Device.error(function (e) {
@@ -165,10 +161,23 @@ function wp_c2client($applicationSid, $Caption = "Call", $Digits = False) {
 			})
 		</script>		
 END;
+return $result;
+}
+
+function wp_c2client_shortcode($atts){
+	extract( shortcode_atts( array(
+		'id' => '',
+		'caption' => 'Call',
+		'digits' => False
+	), $atts ) );
+	return wp_c2client_render($id, $caption, $digits);
 }
 
 function wp_c2client_main() {
+   	add_shortcode('wp_click2client', 'wp_c2client_shortcode');
+	
     return Click2client::init();
+	
 }
 
 wp_c2client_main();

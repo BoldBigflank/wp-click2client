@@ -1,7 +1,7 @@
 === Plugin Name ===
 Contributors: boldbigflank
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=VNYQSLTNWQLT2
-Tags: twilio, click2client, phone, voice, call, client
+Tags: twilio, click2client, phone, voice, call, client, customer service, sales
 Requires at least: 2.8.0
 Tested up to: 3.3.2
 Stable tag: 1.1.1
@@ -12,20 +12,22 @@ Wordpress Click2Client adds in-browser phone call functionality to any wordpress
 
 Wordpress Click2Client adds in-browser phone call functionality to any wordpress site.  Just configure the control and drop the tag in your theme.
 
+See http://www.bold-it.com/wordpress/2012/05/07/click2client-call-me-button/ to create a Call Me button similar to wp-click2call.
+
 == Installation ==
 1. Download the zip or clone it from git.
 2. Copy the wp-click2client into the `/wp-content/plugins/` directory
 3. Activate the wp-click2client plugin.
-4. A newly created menu option is created for Click2Client on the admin menu.  
+4. A newly created settings page is created for Click2Client under the Settings menu.  
 Enter your Twilio Account information
 5. Create a Twilio App at https://www.twilio.com/user/account/apps and note its Application Sid (34 characters, starts with "AP")
-6. Adding Click2Client button: Drop this code snippet below anywhere you want a click to client button, then replace ApplicationSid with the Application Sid that you want the button to call
+6. Adding Click2Client button: Drop this shortcode anywhere you want a click to client button, then replace ApplicationSid with the Application Sid from the previous step
 
-	`<?php wp_c2client("ApplicationSid"); ?>`
+	`[wp_click2client id="ApplicationSid"]`
 
-7. You may add a couple other parameters: choose the button text(string, default is "Call"), and show a box that allows users to input digits (boolean, default is FALSE).  For example:
+7. The 'id' parameter is required.  You may also set 'caption' to what you want to be on the button, and 'digits=TRUE' if you want a text area for users to input numbers.  For example:
 
-	`<?php wp_c2client("ApplicationSid", "Button Text", TRUE); ?>`
+	`[wp_click2client id="ApplicationSid" caption="Call Now!!!1" digits=TRUE]`
 
 Thats it!
 
@@ -36,10 +38,17 @@ Thats it!
 
 == Changelog ==
 
+= 1.1.1 =
+* menu moved to settings page
+* shortcode method added
+
 = 1.1.0 =
 * Added the ability to hide the digits box
 
 == Upgrade Notice ==
+
+= 1.1.1 =
+Shortcode method cleans up button placement
 
 = 1.1.0 =
 Added the ability to hide the digits box
