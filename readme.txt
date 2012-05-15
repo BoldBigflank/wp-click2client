@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: twilio, click2client, phone, voice, call, client, customer service, sales
 Requires at least: 2.8.0
 Tested up to: 3.3.2
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 
 Wordpress Click2Client adds in-browser phone call functionality to any wordpress site.  Just configure the control and drop the tag in your theme.
 
@@ -38,6 +38,9 @@ Thats it!
 
 == Changelog ==
 
+= 1.1.2 =
+* twilio.js now automatically called in the head
+
 = 1.1.1 =
 * menu moved to settings page
 * shortcode method added
@@ -46,6 +49,9 @@ Thats it!
 * Added the ability to hide the digits box
 
 == Upgrade Notice ==
+
+= 1.1.2 =
+* twilio.js now automatically called in the head
 
 = 1.1.1 =
 Shortcode method cleans up button placement

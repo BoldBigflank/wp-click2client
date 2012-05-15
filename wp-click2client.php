@@ -3,7 +3,7 @@
  Plugin Name: Wordpress Click2Client
  Plugin URI: https://github.com/smashcubed/wp-click2client
  Description: Allows theme developers to add click2client support to any post/page
- Version: 1.1.1
+ Version: 1.1.2
  Author: Alex Swan
  Author URI: http://www.bold-it.com
 */
@@ -19,7 +19,7 @@ if (!function_exists('add_action')) {
     
 if(!class_exists('Click2client')) {
 
-define('WP_CLICK2CLIENT_VERSION', '1.1.1');
+define('WP_CLICK2CLIENT_VERSION', '1.1.2');
 require_once 'Services/Twilio.php';
 
 class Click2client {
@@ -173,9 +173,14 @@ function wp_c2client_shortcode($atts){
 	return wp_c2client_render($id, $caption, $digits);
 }
 
+function twilio_scripts(){
+	//<script type="text/javascript" src="//static.twilio.com/libs/twiliojs/1.0/twilio.min.js"></script>
+	wp_enqueue_script('twilio', 'http://static.twilio.com/libs/twiliojs/1.0/twilio.min.js');   
+}
+
 function wp_c2client_main() {
+	add_action('wp_enqueue_scripts', 'twilio_scripts');
    	add_shortcode('wp_click2client', 'wp_c2client_shortcode');
-	
     return Click2client::init();
 	
 }
